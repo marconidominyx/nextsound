@@ -121,7 +121,7 @@ const Header = ({ onOpenSearch }: HeaderProps) => {
             </kbd>
           </Button>
 
-          {/* Queue Toggle Button */}
+          {/* Queue Toggle */}
           <QueueToggle
             isNotFoundPage={isNotFoundPage}
             showBg={isActive}

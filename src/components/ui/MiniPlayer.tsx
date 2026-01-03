@@ -16,7 +16,6 @@ import {
 } from "react-icons/fi";
 import { ITrack } from "@/types";
 import { getImageUrl, cn } from "@/utils";
-import { QueuePanel } from "./QueuePanel";
 
 interface MiniPlayerProps {
 	currentTrack?: ITrack | null;
@@ -361,9 +360,6 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
 					</Button>
 				</div>
 			</div>
-
-			{/* Queue Panel */}
-			<QueuePanel />
 		</div>
 	);
 };

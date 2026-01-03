@@ -1,7 +1,7 @@
 import React, { createContext, useContext, ReactNode, useCallback } from 'react';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
-import { useQueue } from '@/context/queueContext';
 import { ITrack } from '@/types';
+import { useQueueStore } from '@/store/queueStore';
 
 interface AudioPlayerContextType {
   currentTrack: ITrack | null;
@@ -32,62 +32,52 @@ interface AudioPlayerProviderProps {
 
 export const AudioPlayerProvider: React.FC<AudioPlayerProviderProps> = ({ children }) => {
   const audioPlayer = useAudioPlayer();
-  const { getNextTrack, getPreviousTrack, setCurrentIndex, queue } = useQueue();
+  const { songs, currentIndex, setCurrentIndex, playNext, playPrevious, repeatMode } = useQueueStore();
+
+  // Enhanced skipNext that integrates with queue
+  const enhancedSkipNext = useCallback(() => {
+    if (songs.length > 0 && currentIndex >= 0) {
+      const nextIndex = currentIndex < songs.length - 1 ? currentIndex + 1 : (repeatMode === 'all' ? 0 : currentIndex);
+      if (nextIndex !== currentIndex && songs[nextIndex]) {
+        setCurrentIndex(nextIndex);
+        audioPlayer.playTrack(songs[nextIndex]);
+      }
+    } else {
+      audioPlayer.skipNext();
+    }
+  }, [songs, currentIndex, repeatMode, setCurrentIndex, audioPlayer]);
+
+  // Enhanced skipPrevious that integrates with queue
+  const enhancedSkipPrevious = useCallback(() => {
+    if (songs.length > 0 && currentIndex >= 0) {
+      const prevIndex = currentIndex > 0 ? currentIndex - 1 : (repeatMode === 'all' ? songs.length - 1 : currentIndex);
+      if (prevIndex !== currentIndex && songs[prevIndex]) {
+        setCurrentIndex(prevIndex);
+        audioPlayer.playTrack(songs[prevIndex]);
+      }
+    } else {
+      audioPlayer.skipPrevious();
+    }
+  }, [songs, currentIndex, repeatMode, setCurrentIndex, audioPlayer]);
 
   // Enhanced playTrack that updates queue index
-  const playTrackWithQueue = useCallback((track: ITrack) => {
-    // Find track in queue and set as current
-    const trackIndex = queue.findIndex(t => t.id === track.id);
-    if (trackIndex >= 0) {
-      setCurrentIndex(trackIndex);
+  const enhancedPlayTrack = useCallback((track: ITrack) => {
+    const queueIndex = songs.findIndex((s) => s.id === track.id);
+    if (queueIndex !== -1) {
+      setCurrentIndex(queueIndex);
     }
     audioPlayer.playTrack(track);
-  }, [queue, setCurrentIndex, audioPlayer]);
+  }, [songs, setCurrentIndex, audioPlayer]);
 
-  // Enhanced skipNext that uses queue
-  const skipNext = useCallback(() => {
-    const nextTrack = getNextTrack();
-    if (nextTrack) {
-      playTrackWithQueue(nextTrack);
-    } else {
-      audioPlayer.skipNext(() => getNextTrack());
-    }
-  }, [getNextTrack, playTrackWithQueue, audioPlayer]);
-
-  // Enhanced skipPrevious that uses queue
-  const skipPrevious = useCallback(() => {
-    const prevTrack = getPreviousTrack();
-    if (prevTrack) {
-      playTrackWithQueue(prevTrack);
-    } else {
-      audioPlayer.skipPrevious(() => getPreviousTrack());
-    }
-  }, [getPreviousTrack, playTrackWithQueue, audioPlayer]);
-
-  // Handle track end - auto-play next
-  React.useEffect(() => {
-    if (!audioPlayer.isPlaying && audioPlayer.progress === 0 && audioPlayer.currentTrack) {
-      // Track just ended, try to play next
-      const nextTrack = getNextTrack();
-      if (nextTrack) {
-        // Small delay to avoid immediate playback
-        const timer = setTimeout(() => {
-          playTrackWithQueue(nextTrack);
-        }, 500);
-        return () => clearTimeout(timer);
-      }
-    }
-  }, [audioPlayer.isPlaying, audioPlayer.progress, audioPlayer.currentTrack, getNextTrack, playTrackWithQueue]);
+  const value = {
+    ...audioPlayer,
+    playTrack: enhancedPlayTrack,
+    skipNext: enhancedSkipNext,
+    skipPrevious: enhancedSkipPrevious,
+  };
 
   return (
-    <AudioPlayerContext.Provider
-      value={{
-        ...audioPlayer,
-        playTrack: playTrackWithQueue,
-        skipNext,
-        skipPrevious,
-      }}
-    >
+    <AudioPlayerContext.Provider value={value}>
       {children}
     </AudioPlayerContext.Provider>
   );

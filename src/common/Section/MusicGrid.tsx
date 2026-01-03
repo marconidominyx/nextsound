@@ -1,7 +1,6 @@
 import { FC, useState } from "react";
 import { TrackCard } from "@/components/ui/TrackCard";
 import { ITrack } from "@/types";
-import { useAudioPlayerContext } from "@/context/audioPlayerContext";
 
 interface MusicGridProps {
   tracks: ITrack[];
@@ -23,7 +22,11 @@ const MusicGrid: FC<MusicGridProps> = ({
   hasMoreContent = false
 }) => {
   const [visibleCount, setVisibleCount] = useState(initialDisplayCount);
-  const { currentTrack, isPlaying } = useAudioPlayerContext();
+
+  const handlePlay = (track: ITrack) => {
+    // Track card click can be handled by the TrackCard component itself
+    // This is kept for backward compatibility
+  };
 
   const handleLoadMoreClick = () => {
     if (tracks.length > visibleCount) {
@@ -50,7 +53,8 @@ const MusicGrid: FC<MusicGridProps> = ({
             <TrackCard
               track={track}
               category={category}
-              isPlaying={currentTrack?.id === track.id && isPlaying}
+              isPlaying={false}
+              onPlay={handlePlay}
               variant="detailed"
             />
           </div>

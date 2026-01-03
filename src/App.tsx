@@ -11,6 +11,8 @@ import {
   DemoModeBadge,
 } from "@/common";
 import { CommandPalette } from "@/components/ui/CommandPalette";
+import { QueueSidebar } from "@/components/ui/QueueSidebar";
+import { AudioPlayerProvider } from "@/context/audioPlayerContext";
 import { MiniPlayer } from "@/components/ui/MiniPlayer";
 import { useAudioPlayerContext } from "@/context/audioPlayerContext";
 
@@ -20,7 +22,7 @@ import "swiper/css";
 const Home = lazy(() => import("./pages/Home"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
-const App = () => {
+const AppContent = () => {
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const audioPlayer = useAudioPlayerContext();
 
@@ -65,6 +67,9 @@ const App = () => {
         }}
       />
 
+      {/* Queue Sidebar */}
+      <QueueSidebar />
+
       {/* Mini Player */}
       <MiniPlayer
         currentTrack={audioPlayer.currentTrack}
@@ -73,7 +78,6 @@ const App = () => {
         volume={audioPlayer.volume}
         isShuffled={audioPlayer.isShuffled}
         repeatMode={audioPlayer.repeatMode}
-        isMinimized={audioPlayer.isMinimized}
         onTogglePlay={audioPlayer.togglePlay}
         onSkipPrevious={audioPlayer.skipPrevious}
         onSkipNext={audioPlayer.skipNext}
@@ -82,12 +86,21 @@ const App = () => {
         onToggleShuffle={audioPlayer.toggleShuffle}
         onToggleRepeat={audioPlayer.toggleRepeat}
         onToggleFavorite={audioPlayer.toggleFavorite}
+        isMinimized={audioPlayer.isMinimized}
         onToggleMinimize={audioPlayer.toggleMinimize}
         onClose={audioPlayer.closePlayer}
       />
 
       <Footer />
     </>
+  );
+};
+
+const App = () => {
+  return (
+    <AudioPlayerProvider>
+      <AppContent />
+    </AudioPlayerProvider>
   );
 };
 

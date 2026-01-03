@@ -7,8 +7,6 @@ import { Provider } from "react-redux";
 import { store } from "@/store";
 import GlobalContextProvider from "@/context/globalContext";
 import ThemeProvider from "@/context/themeContext";
-import { QueueProvider } from "@/context/queueContext";
-import { AudioPlayerProvider } from "@/context/audioPlayerContext";
 import ErrorBoundary from "@/common/ErrorBoundary";
 import App from "./App";
 import "./index.css";
@@ -31,13 +29,9 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
         <Provider store={store}>
           <ThemeProvider>
             <GlobalContextProvider>
-              <QueueProvider>
-                <AudioPlayerProvider>
-                  <LazyMotion features={domAnimation}>
-                    <App />
-                  </LazyMotion>
-                </AudioPlayerProvider>
-              </QueueProvider>
+              <LazyMotion features={domAnimation}>
+                <App />
+              </LazyMotion>
             </GlobalContextProvider>
           </ThemeProvider>
         </Provider>
