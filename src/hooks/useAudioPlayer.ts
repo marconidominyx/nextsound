@@ -300,15 +300,23 @@ export const useAudioPlayer = () => {
     setState(prev => ({ ...prev, isPlaying: !prev.isPlaying }));
   }, [state.isPlaying, state.currentTrack, state.progress]);
 
-  const skipNext = useCallback(() => {
-    console.log('Skip next - not implemented yet');
-    // TODO: Implement next track logic
-  }, []);
+  const skipNext = useCallback((getNextTrack?: () => ITrack | null) => {
+    const nextTrack = getNextTrack?.();
+    if (nextTrack) {
+      playTrack(nextTrack);
+    } else {
+      console.log('No next track in queue');
+    }
+  }, [playTrack]);
 
-  const skipPrevious = useCallback(() => {
-    console.log('Skip previous - not implemented yet');
-    // TODO: Implement previous track logic
-  }, []);
+  const skipPrevious = useCallback((getPreviousTrack?: () => ITrack | null) => {
+    const prevTrack = getPreviousTrack?.();
+    if (prevTrack) {
+      playTrack(prevTrack);
+    } else {
+      console.log('No previous track in queue');
+    }
+  }, [playTrack]);
 
   const seek = useCallback((position: number) => {
     setState(prev => ({ ...prev, progress: position }));

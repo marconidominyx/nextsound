@@ -13,9 +13,12 @@ import {
 	FiMoreHorizontal,
 	FiMinimize2,
 	FiMaximize2,
+	FiList,
 } from "react-icons/fi";
 import { ITrack } from "@/types";
 import { getImageUrl, cn } from "@/utils";
+import { useQueue } from "@/context/queueContext";
+import { QueuePanel } from "./QueuePanel";
 
 interface MiniPlayerProps {
 	currentTrack?: ITrack | null;
@@ -62,6 +65,7 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
 	const [localProgress, setLocalProgress] = useState(progress);
 	const [showVolumeSlider, setShowVolumeSlider] = useState(false);
 	const [isFavorite, setIsFavorite] = useState(false);
+	const { toggleQueue, queue } = useQueue();
 
 	const progressRef = useRef<HTMLDivElement>(null);
 
@@ -340,6 +344,27 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
 						)}
 					</div>
 
+					{/* Queue button */}
+					<Button
+						onClick={toggleQueue}
+						variant="ghost"
+						size="icon"
+						className={cn(
+							"flex items-center justify-center w-8 h-8 relative transition-colors duration-200",
+							queue.length > 0
+								? "text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+								: "text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300"
+						)}
+						aria-label="Toggle queue"
+					>
+						<FiList className="w-4 h-4" />
+						{queue.length > 0 && (
+							<span className="absolute -top-1 -right-1 w-4 h-4 bg-blue-600 text-white text-xs rounded-full flex items-center justify-center font-bold">
+								{queue.length > 9 ? '9+' : queue.length}
+							</span>
+						)}
+					</Button>
+
 					{/* More options */}
 					<Button
 						variant="ghost"
@@ -360,6 +385,9 @@ export const MiniPlayer: React.FC<MiniPlayerProps> = ({
 					</Button>
 				</div>
 			</div>
+
+			{/* Queue Panel */}
+			<QueuePanel />
 		</div>
 	);
 };

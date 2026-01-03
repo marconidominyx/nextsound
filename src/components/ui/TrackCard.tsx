@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from './card';
+import { Button } from './button';
 import {
   FaClock
 } from 'react-icons/fa';
+import { FiPlay, FiPlus } from 'react-icons/fi';
 import { ITrack } from '@/types';
 import { getImageUrl, cn } from '@/utils';
+import { useQueue } from '@/context/queueContext';
+import { useAudioPlayerContext } from '@/context/audioPlayerContext';
 
 interface TrackCardProps {
   track: ITrack;
   category: string;
   isPlaying?: boolean;
   onPlay?: (track: ITrack) => void;
+  onAddToQueue?: (track: ITrack) => void;
   variant?: 'compact' | 'detailed' | 'featured';
   className?: string;
 }
@@ -20,11 +25,17 @@ export const TrackCard: React.FC<TrackCardProps> = ({
   category: _category,
   isPlaying: _isPlayingProp,
   onPlay: _onPlayProp,
+  onAddToQueue: _onAddToQueueProp,
   variant = 'detailed',
   className
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const { addToQueue, openQueue } = useQueue();
+  const { playTrack, currentTrack, isPlaying } = useAudioPlayerContext();
+  
+  const isCurrentTrack = currentTrack?.id === track.id;
+  const isCurrentlyPlaying = isCurrentTrack && isPlaying;
 
   const { poster_path, original_title: title, name, artist, album, duration } = track;
   const displayTitle = title || name || 'Unknown Track';
@@ -86,6 +97,42 @@ export const TrackCard: React.FC<TrackCardProps> = ({
             "absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent transition-opacity duration-300 rounded-lg",
             isHovered ? "opacity-100" : "opacity-0"
           )} />
+
+          {/* Action buttons overlay */}
+          <div className={cn(
+            "absolute inset-0 flex items-center justify-center gap-2 transition-opacity duration-300 rounded-lg",
+            isHovered ? "opacity-100" : "opacity-0"
+          )}>
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                playTrack(track);
+              }}
+              size="icon"
+              className="w-12 h-12 rounded-full bg-white/90 hover:bg-white text-gray-900 shadow-lg transition-all hover:scale-110"
+              aria-label={`Play ${displayTitle}`}
+            >
+              <FiPlay className="w-5 h-5 ml-0.5" />
+            </Button>
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                addToQueue(track, 'end');
+                // Optionally open queue panel
+                setTimeout(() => openQueue(), 300);
+              }}
+              size="icon"
+              className="w-10 h-10 rounded-full bg-white/90 hover:bg-white text-gray-900 shadow-lg transition-all hover:scale-110"
+              aria-label={`Add ${displayTitle} to queue`}
+            >
+              <FiPlus className="w-4 h-4" />
+            </Button>
+          </div>
+
+          {/* Playing indicator */}
+          {isCurrentlyPlaying && (
+            <div className="absolute top-2 right-2 w-3 h-3 bg-green-500 rounded-full animate-pulse shadow-lg"></div>
+          )}
         </div>
 
         {/* Track information */}
