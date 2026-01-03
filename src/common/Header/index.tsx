@@ -10,6 +10,7 @@ import { Button } from "react-aria-components";
 
 import { ThemeMenu, Logo } from "..";
 import HeaderNavItem from "./HeaderNavItem";
+import { QueueToggle } from "@/components/ui/QueueToggle";
 
 import { useGlobalContext } from "@/context/globalContext";
 import { useTheme } from "@/context/themeContext";
@@ -119,6 +120,12 @@ const Header = ({ onOpenSearch }: HeaderProps) => {
               ⌘K
             </kbd>
           </Button>
+
+          {/* Queue Toggle Button */}
+          <QueueToggle
+            isNotFoundPage={isNotFoundPage}
+            showBg={isActive}
+          />
 
           <div className="button relative">
             <button

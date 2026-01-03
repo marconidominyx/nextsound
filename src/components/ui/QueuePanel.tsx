@@ -18,6 +18,7 @@ export const QueuePanel: React.FC = () => {
     removeFromQueue,
     reorderQueue,
     setCurrentIndex,
+    toggleQueue,
   } = useQueue();
 
   const { playTrack, isPlaying, currentTrack } = useAudioPlayerContext();
@@ -49,17 +50,23 @@ export const QueuePanel: React.FC = () => {
     setDragOverIndex(null);
   };
 
-  // Close on escape key
+  // Keyboard shortcuts
   useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Escape to close
       if (e.key === 'Escape' && isOpen) {
         closeQueue();
       }
+      // Cmd+Q or Ctrl+Q to toggle
+      if ((e.metaKey || e.ctrlKey) && e.key === 'q') {
+        e.preventDefault();
+        toggleQueue();
+      }
     };
 
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [isOpen, closeQueue]);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, closeQueue, toggleQueue]);
 
   // Prevent body scroll when open
   useEffect(() => {
@@ -115,17 +122,17 @@ export const QueuePanel: React.FC = () => {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-white dark:bg-gray-900 shadow-2xl z-50 flex flex-col"
+            className="fixed right-0 top-0 bottom-0 w-full md:w-80 bg-white dark:bg-deep-dark border-l border-gray-200 dark:border-gray-700 shadow-2xl z-50 flex flex-col"
           >
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center gap-2">
                 <FiMusic className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-text-primary">
                   Queue
                 </h2>
                 {queue.length > 0 && (
-                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                  <span className="text-sm text-gray-500 dark:text-text-secondary">
                     ({queue.length})
                   </span>
                 )}
@@ -171,13 +178,15 @@ export const QueuePanel: React.FC = () => {
                   {/* Now Playing Section */}
                   {displayCurrentTrack && (
                     <div className="mb-6">
-                      <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">
+                      <h3 className="text-xs font-semibold text-gray-500 dark:text-text-secondary uppercase tracking-wider mb-3">
                         Now Playing
                       </h3>
                       <div
                         className={cn(
-                          'p-4 rounded-lg border-2 transition-all',
-                          'bg-blue-50 dark:bg-blue-900/20 border-blue-600 dark:border-blue-500',
+                          'p-4 rounded-lg border transition-all relative',
+                          'bg-gradient-to-r from-blue-500/10 to-blue-600/5',
+                          'border-blue-500/20',
+                          'shadow-lg shadow-blue-500/10',
                           isPlaying && 'ring-2 ring-blue-400 dark:ring-blue-500 ring-opacity-50'
                         )}
                       >
@@ -186,19 +195,19 @@ export const QueuePanel: React.FC = () => {
                             <img
                               src={getImageUrl(displayCurrentTrack.poster_path)}
                               alt={displayCurrentTrack.title || displayCurrentTrack.name}
-                              className="w-16 h-16 rounded-lg object-cover"
+                              className="w-12 h-12 rounded-lg object-cover"
                             />
                             {isPlaying && (
-                              <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                              <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
                                 <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
                               </div>
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h4 className="text-base font-semibold text-blue-900 dark:text-blue-100 truncate">
+                            <h4 className="text-base font-semibold text-gray-900 dark:text-text-primary truncate">
                               {displayCurrentTrack.title || displayCurrentTrack.name || 'Unknown Track'}
                             </h4>
-                            <p className="text-sm text-blue-700 dark:text-blue-300 truncate">
+                            <p className="text-sm text-gray-500 dark:text-text-secondary truncate">
                               {displayCurrentTrack.artist || 'Unknown Artist'}
                             </p>
                           </div>

@@ -54,10 +54,13 @@ export const QueueItem: React.FC<QueueItemProps> = ({
       onDragEnd={handleDragEnd}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={() => !isCurrent && onPlay(track)}
       className={cn(
-        'flex items-center gap-3 p-3 rounded-lg transition-all duration-200 group',
-        'hover:bg-gray-100 dark:hover:bg-gray-800',
-        isCurrent && 'bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-600',
+        'flex items-center gap-3 p-3 rounded-lg transition-all duration-300 group cursor-pointer',
+        'hover:bg-gradient-to-r hover:from-blue-500/10 hover:to-blue-600/5',
+        'hover:border hover:border-blue-500/20',
+        'hover:shadow-lg hover:shadow-blue-500/10',
+        isCurrent && 'bg-gradient-to-r from-blue-500/10 to-blue-600/5 border border-blue-500/20',
         isDragging && 'opacity-50'
       )}
     >
@@ -90,7 +93,7 @@ export const QueueItem: React.FC<QueueItemProps> = ({
         <img
           src={getImageUrl(track.poster_path)}
           alt={displayTitle}
-          className="w-12 h-12 rounded-md object-cover"
+          className="w-10 h-10 rounded-lg object-cover shadow-sm"
         />
       </div>
 
@@ -99,9 +102,7 @@ export const QueueItem: React.FC<QueueItemProps> = ({
         <h4
           className={cn(
             'text-sm font-medium truncate',
-            isCurrent
-              ? 'text-blue-900 dark:text-blue-100'
-              : 'text-gray-900 dark:text-white'
+            'text-gray-900 dark:text-text-primary'
           )}
         >
           {displayTitle}
@@ -109,9 +110,7 @@ export const QueueItem: React.FC<QueueItemProps> = ({
         <p
           className={cn(
             'text-xs truncate',
-            isCurrent
-              ? 'text-blue-700 dark:text-blue-300'
-              : 'text-gray-600 dark:text-gray-400'
+            'text-gray-500 dark:text-text-secondary'
           )}
         >
           {displayArtist}
@@ -120,8 +119,8 @@ export const QueueItem: React.FC<QueueItemProps> = ({
 
       {/* Duration */}
       {track.duration && (
-        <div className="flex-shrink-0 text-xs text-gray-500 dark:text-gray-400">
-          {formatDuration(track.duration)}
+        <div className="flex-shrink-0 text-xs text-gray-500 dark:text-text-secondary flex items-center gap-1">
+          <span>{formatDuration(track.duration)}</span>
         </div>
       )}
 
@@ -133,10 +132,13 @@ export const QueueItem: React.FC<QueueItemProps> = ({
           'flex-shrink-0 w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity',
           'text-gray-400 hover:text-red-600 dark:text-gray-500 dark:hover:text-red-400'
         )}
-        onClick={(e) => {
-          e.stopPropagation();
-          onRemove(index);
-        }}
+      onClick={(e) => {
+        e.stopPropagation();
+        onRemove(index);
+      }}
+      onMouseDown={(e) => {
+        e.stopPropagation();
+      }}
         aria-label={`Remove ${displayTitle} from queue`}
       >
         <FiX className="w-4 h-4" />
